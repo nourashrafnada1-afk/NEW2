@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — School Survey</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#f7f4ef;
+  --navy:#111827;
+  --surface:#ffffff;
+  --surface2:#fffaf2;
+  --border:#e5e0d8;
+  --border2:#d8d0c3;
+  --teal:#0d9488; --teal-light:#14b8a6;
+  --teal-pale:#e6faf9;
+  --amber:#d97706; --amber-light:#fbbf24;
+  --amber-pale:#fef9ee;
+  --red:#dc2626; --green:#22c55e; --blue:#3b82f6; --purple:#8b5cf6;
+  --white:#111827; --muted:#6b7280; --text:#111827;
+  --gray:#6b7280;
+  --shadow:0 4px 24px rgba(0,0,0,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 600px 400px at 10% 20%,rgba(13,148,136,.06) 0%,transparent 70%),radial-gradient(ellipse 500px 400px at 90% 80%,rgba(217,119,6,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
+#loginScreen,#dashboard{position:relative;z-index:1}
+
+/* LOGIN */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px;
+  background:radial-gradient(ellipse 600px 400px at 10% 20%,rgba(13,148,136,.06) 0%,transparent 70%),
+             radial-gradient(ellipse 500px 400px at 90% 80%,rgba(217,119,6,.05) 0%,transparent 70%),var(--bg)}
+.login-card{background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:52px 44px;
+  width:100%;max-width:420px;text-align:center;box-shadow:0 16px 60px rgba(0,0,0,.10);animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.lock-icon{width:64px;height:64px;background:rgba(13,148,136,.12);border:1.5px solid rgba(13,148,136,.3);
+  border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 24px}
+.login-card h2{font-family:'Lora',serif;font-size:26px;font-weight:700;color:var(--white);margin-bottom:6px}
+.login-card p{color:var(--muted);font-size:14px;margin-bottom:32px}
+.input-group{margin-bottom:14px;text-align:left}
+.input-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;display:block}
+.login-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;
+  color:var(--white);font-family:'Sora',sans-serif;font-size:14px;padding:13px 16px;outline:none;transition:border-color .2s,background .2s}
+.login-input:focus{border-color:var(--teal);background:rgba(13,148,136,.05)}
+.login-input::placeholder{color:var(--muted)}
+.login-btn{width:100%;margin-top:8px;padding:14px;background:var(--teal);border:none;border-radius:10px;
+  color:#fff;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.login-btn:hover{background:var(--teal-light);box-shadow:0 6px 24px rgba(13,148,136,.35)}
+.login-error{margin-top:12px;color:var(--red);font-size:13px;display:none;
+  background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px}
+.demo-hint{margin-top:18px;font-size:12px;color:var(--muted)}
+.demo-hint code{background:rgba(255,255,255,.07);padding:2px 6px;border-radius:4px;font-size:11px}
+
+/* DASHBOARD */
+#dashboard{display:none}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);padding:0 32px;height:62px;display:flex;align-items:center;justify-content:space-between}
+.topbar-logo{font-family:'Lora',serif;font-size:18px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:10px}
+.live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.6;box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.resp-count{background:rgba(13,148,136,.12);border:1px solid rgba(13,148,136,.25);color:var(--teal-light);font-size:13px;font-weight:600;padding:6px 14px;border-radius:100px}
+.live-badge{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:#86efac;font-size:11px;font-weight:700;padding:5px 11px;border-radius:100px;display:flex;align-items:center;gap:5px}
+.top-btn{padding:7px 14px;border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid var(--border2);background:transparent;color:var(--muted)}
+.top-btn:hover{color:var(--white);border-color:var(--navy)}
+
+/* FILTER BAR */
+.filter-bar{background:rgba(255,255,255,.55);border-bottom:1px solid var(--border);
+  padding:10px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filter-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.filter-btn{padding:6px 14px;border-radius:100px;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .2s;border:1px solid var(--border2);background:transparent;color:var(--muted)}
+.filter-btn:hover{border-color:var(--teal);color:var(--teal-light)}
+.filter-btn.active{border-color:var(--teal);background:rgba(13,148,136,.12);color:var(--teal-light)}
+.filter-sep{width:1px;height:20px;background:var(--border2);flex-shrink:0}
+.date-select{padding:6px 12px;background:var(--white);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:'Sora',sans-serif;font-size:12px;outline:none;cursor:pointer;transition:border-color .2s}
+.date-select:focus{border-color:var(--teal)}
+.date-select option{background:#ffffff;color:#111827}
+.filter-reset{color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;background:none;border:none;
+  font-family:'Sora',sans-serif;transition:color .2s;padding:6px 8px}
+.filter-reset:hover{color:var(--amber-light)}
+.filter-count{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;font-weight:600}
+
+/* BODY */
+.dash-body{padding:28px 32px;max-width:1320px;margin:0 auto}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;margin-top:32px}
+.sec-head:first-child{margin-top:0}
+.sec-title{font-family:'Lora',serif;font-size:17px;font-weight:700;color:var(--white)}
+.sec-line{flex:1;height:1px;background:var(--border)}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 18px;
+  position:relative;overflow:hidden;transition:border-color .2s,transform .2s}
+.kpi-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.kpi-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.kpi-val{font-family:'Lora',serif;font-size:38px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--muted)}
+.kpi-icon{position:absolute;top:16px;right:18px;font-size:20px;opacity:.5}
+
+/* ROLES */
+.roles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.role-stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;
+  display:flex;align-items:center;gap:14px}
+.role-ava{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.role-info-name{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.role-info-count{font-family:'Lora',serif;font-size:28px;font-weight:700;color:var(--white);line-height:1}
+.role-info-pct{font-size:11px;color:var(--muted);margin-top:2px}
+.role-mini{margin-left:auto;flex-shrink:0}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px}
+.chart-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:6px;margin-bottom:10px}
+.ct-fac{background:rgba(13,148,136,.12);color:var(--teal-light)}
+.ct-teach{background:rgba(217,119,6,.1);color:var(--amber-light)}
+.ct-mixed{background:rgba(139,92,246,.1);color:#a78bfa}
+.chart-title{font-size:13px;font-weight:600;color:var(--white);line-height:1.4;margin-bottom:14px}
+.canvas-wrap{position:relative;height:200px}
+.avg-label{font-size:11px;color:var(--muted);margin-bottom:12px}
+.avg-label span{color:var(--teal-light);font-weight:700;font-size:14px}
+
+/* FEEDBACK */
+.feedback-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px}
+.fb-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.fb-search{flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  color:var(--white);font-family:'Sora',sans-serif;font-size:13px;padding:9px 14px;outline:none;transition:border-color .2s}
+.fb-search:focus{border-color:var(--teal)}
+.fb-search::placeholder{color:var(--muted)}
+.fb-sort-btn{padding:8px 14px;background:transparent;border:1px solid var(--border2);border-radius:8px;
+  color:var(--muted);font-family:'Sora',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.fb-sort-btn:hover{border-color:var(--teal);color:var(--teal-light)}
+.fb-count{font-size:12px;color:var(--muted);font-weight:600}
+.fb-list{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.fb-item{background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--teal);
+  border-radius:0 10px 10px 0;padding:11px 14px;display:flex;gap:10px;align-items:flex-start;animation:slideIn .3s ease both}
+@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+.fb-role-badge{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+.badge-student{background:rgba(59,130,246,.12);color:#93c5fd}
+.badge-teacher{background:rgba(217,119,6,.12);color:var(--amber-light)}
+.badge-parent{background:rgba(34,197,94,.12);color:#86efac}
+.fb-text{font-size:13px;color:var(--gray);line-height:1.55;flex:1}
+.fb-time{font-size:10px;color:var(--muted);flex-shrink:0;margin-top:2px;white-space:nowrap}
+.empty-msg{text-align:center;padding:28px;color:var(--muted);font-size:13px}
+
+/* EXPORT */
+.export-row{display:flex;gap:10px;margin-top:20px;padding-bottom:32px;flex-wrap:wrap}
+.export-btn{padding:10px 20px;border:1px solid var(--border2);border-radius:9px;background:transparent;
+  color:var(--muted);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px}
+.export-btn:hover{border-color:var(--teal);color:var(--teal-light)}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:12px 22px;
+  font-size:13px;font-weight:600;color:var(--white);box-shadow:0 8px 32px rgba(0,0,0,.12);
+  transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .35s;opacity:0;z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(17,24,39,.18);border-radius:3px}
+
+@media(max-width:900px){
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .charts-grid{grid-template-columns:1fr}
+  .roles-grid{grid-template-columns:1fr}
+  .dash-body{padding:20px 16px}
+  .topbar,.filter-bar{padding-left:16px;padding-right:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="lock-icon">🔐</div>
+    <h2>Admin Dashboard</h2>
+    <p>Sign in to view live survey analytics</p>
+    <div class="input-group">
+      <label class="input-label">Username</label>
+      <input class="login-input" type="text" id="uInput" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Password</label>
+      <input class="login-input" type="password" id="pInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-error" id="loginErr">Incorrect credentials. Please try again.</div>
+    <div class="demo-hint">Demo: <code>admin</code> / <code>admin123</code></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <nav class="topbar">
+    <div class="topbar-logo"><div class="live-dot"></div>School Survey — Admin</div>
+    <div class="topbar-right">
+      <div class="live-badge"><span style="width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block"></span>Live</div>
+      <span class="resp-count" id="topCount">0 Responses</span>
+      <button class="top-btn" onclick="clearAll()" style="color:var(--red);border-color:rgba(239,68,68,.25)">🗑 Clear</button>
+      <button class="top-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="filter-bar">
+    <span class="filter-label">Role:</span>
+    <button class="filter-btn active" onclick="setRole('all',this)">All</button>
+    <button class="filter-btn" onclick="setRole('student',this)">🎒 Students</button>
+    <button class="filter-btn" onclick="setRole('teacher',this)">🎓 Teachers</button>
+    <button class="filter-btn" onclick="setRole('parent',this)">👨‍👩‍👧 Parents</button>
+    <div class="filter-sep"></div>
+    <span class="filter-label">Period:</span>
+    <select class="date-select" id="dateSel" onchange="render()">
+      <option value="all">All time</option>
+      <option value="today">Today</option>
+      <option value="week">This week</option>
+      <option value="month">This month</option>
+    </select>
+    <button class="filter-reset" onclick="resetFilters()">↺ Reset</button>
+    <span class="filter-count" id="filterCount"></span>
+  </div>
+
+  <div class="dash-body">
+
+    <div class="sec-head"><span class="sec-title">Overview</span><div class="sec-line"></div></div>
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,var(--teal),var(--teal-light))"></div>
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-label">Filtered Responses</div>
+        <div class="kpi-val" style="color:var(--teal-light)" id="kTotal">0</div>
+        <div class="kpi-sub" id="kSub">of 0 total</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,#22c55e,#86efac)"></div>
+        <div class="kpi-icon">🏫</div>
+        <div class="kpi-label">Avg. Facilities Score</div>
+        <div class="kpi-val" style="color:#4ade80" id="kFac">—</div>
+        <div class="kpi-sub">out of 5.0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,var(--amber),var(--amber-light))"></div>
+        <div class="kpi-icon">🎓</div>
+        <div class="kpi-label">Avg. Teaching Score</div>
+        <div class="kpi-val" style="color:var(--amber-light)" id="kTeach">—</div>
+        <div class="kpi-sub">out of 5.0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,var(--purple),#c084fc)"></div>
+        <div class="kpi-icon">💬</div>
+        <div class="kpi-label">Open Comments</div>
+        <div class="kpi-val" style="color:#a78bfa" id="kComments">0</div>
+        <div class="kpi-sub">written feedback</div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-title">Respondents</span><div class="sec-line"></div></div>
+    <div class="roles-grid">
+      <div class="role-stat">
+        <div class="role-ava" style="background:rgba(59,130,246,.12)">🎒</div>
+        <div><div class="role-info-name">Students</div><div class="role-info-count" id="rS">0</div><div class="role-info-pct" id="rSp">0%</div></div>
+        <div class="role-mini"><canvas id="cRS" width="64" height="64"></canvas></div>
+      </div>
+      <div class="role-stat">
+        <div class="role-ava" style="background:rgba(217,119,6,.12)">🎓</div>
+        <div><div class="role-info-name">Teachers</div><div class="role-info-count" id="rT">0</div><div class="role-info-pct" id="rTp">0%</div></div>
+        <div class="role-mini"><canvas id="cRT" width="64" height="64"></canvas></div>
+      </div>
+      <div class="role-stat">
+        <div class="role-ava" style="background:rgba(34,197,94,.12)">👨‍👩‍👧</div>
+        <div><div class="role-info-name">Parents</div><div class="role-info-count" id="rP">0</div><div class="role-info-pct" id="rPp">0%</div></div>
+        <div class="role-mini"><canvas id="cRP" width="64" height="64"></canvas></div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-title">Rating Questions</span><div class="sec-line"></div></div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <span class="chart-tag ct-fac">Facilities</span>
+        <div class="chart-title">Overall condition of school facilities</div>
+        <div class="avg-label">Average: <span id="a1">—</span>/5</div>
+        <div class="canvas-wrap"><canvas id="c1"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <span class="chart-tag ct-fac">Facilities</span>
+        <div class="chart-title">Cleanliness and safety of the environment</div>
+        <div class="avg-label">Average: <span id="a2">—</span>/5</div>
+        <div class="canvas-wrap"><canvas id="c2"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <span class="chart-tag ct-teach">Teaching</span>
+        <div class="chart-title">Overall quality of teaching</div>
+        <div class="avg-label">Average: <span id="a3">—</span>/5</div>
+        <div class="canvas-wrap"><canvas id="c3"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <span class="chart-tag ct-teach">Teaching</span>
+        <div class="chart-title">How engaging and interactive are lessons</div>
+        <div class="avg-label">Average: <span id="a4">—</span>/5</div>
+        <div class="canvas-wrap"><canvas id="c4"></canvas></div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-title">Multiple Choice</span><div class="sec-line"></div></div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <span class="chart-tag ct-fac">Facilities</span>
+        <div class="chart-title">Which facilities need the most improvement?</div>
+        <div class="canvas-wrap"><canvas id="cFI"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <span class="chart-tag ct-teach">Teaching</span>
+        <div class="chart-title">Most effective teaching methods</div>
+        <div class="canvas-wrap"><canvas id="cTM"></canvas></div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-title">Priority &amp; Distribution</span><div class="sec-line"></div></div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <span class="chart-tag ct-mixed">All Respondents</span>
+        <div class="chart-title">Top school priority selected</div>
+        <div class="canvas-wrap"><canvas id="cPri"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <span class="chart-tag ct-mixed">Distribution</span>
+        <div class="chart-title">Response breakdown by role</div>
+        <div class="canvas-wrap" style="display:flex;align-items:center;justify-content:center">
+          <canvas id="cPie" style="max-height:190px;max-width:320px"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-title">Open Feedback</span><div class="sec-line"></div></div>
+    <div class="feedback-card">
+      <div class="fb-toolbar">
+        <input class="fb-search" id="fbSearch" type="text" placeholder="Search feedback…" oninput="renderFeedback()">
+        <button class="fb-sort-btn" onclick="toggleSort()">⇅ <span id="sortLbl">Newest first</span></button>
+        <span class="fb-count" id="fbCount"></span>
+      </div>
+      <div class="fb-list" id="fbList"><div class="empty-msg">No feedback yet.</div></div>
+    </div>
+
+    <div class="export-row">
+      <button class="export-btn" onclick="exportCSV()">📥 Export CSV</button>
+      <button class="export-btn" onclick="exportJSON()">📄 Export JSON</button>
+      <button class="export-btn" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── Chart.js defaults ─── */
+Chart.defaults.color = '#64748b';
+Chart.defaults.font.family = "'Sora',sans-serif";
+Chart.defaults.font.size = 11;
+
+/* ─── State ─── */
+let roleF = 'all', dateF = 'all', sortNew = true;
+let liveTimer = null, lastN = -1;
+const CX = {}; // chart registry
+
+/* ─── Storage ─── */
+const db = () => { try { return JSON.parse(localStorage.getItem('schoolSurveyData'))||{responses:[]}; } catch { return {responses:[]}; } };
+const save = d => localStorage.setItem('schoolSurveyData', JSON.stringify(d));
+
+/* ─── Auth ─── */
+function doLogin() {
+  if (document.getElementById('uInput').value.trim()==='admin' &&
+      document.getElementById('pInput').value==='admin123') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    startLive(); render();
+  } else { document.getElementById('loginErr').style.display = 'block'; }
+}
+function doLogout() {
+  stopLive();
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  ['uInput','pInput'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('loginErr').style.display = 'none';
+}
+
+/* ─── Live polling (every 3s) ─── */
+function startLive() {
+  liveTimer = setInterval(() => {
+    const n = db().responses.length;
+    if (n !== lastN) { const isNew = lastN>=0 && n>lastN; lastN=n; render(); if(isNew) toast('🔔 New response received!'); }
+  }, 3000);
+}
+function stopLive() { clearInterval(liveTimer); }
+
+/* ─── Filters ─── */
+function setRole(r, btn) {
+  roleF = r;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function resetFilters() {
+  roleF = 'all'; dateF = 'all';
+  document.querySelectorAll('.filter-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.getElementById('dateSel').value = 'all';
+  render();
+}
+function filtered(all) {
+  dateF = document.getElementById('dateSel').value;
+  const now = new Date();
+  return all.filter(r => {
+    if (roleF !== 'all' && r.role !== roleF) return false;
+    if (dateF !== 'all') {
+      const d = new Date(r.timestamp);
+      if (dateF==='today' && d.toDateString()!==now.toDateString()) return false;
+      if (dateF==='week') { const w=new Date(now); w.setDate(now.getDate()-7); if(d<w) return false; }
+      if (dateF==='month') { const m=new Date(now); m.setMonth(now.getMonth()-1); if(d<m) return false; }
+    }
+    return true;
+  });
+}
+
+/* ─── Main render ─── */
+function render() {
+  const all = db().responses;
+  const rs = filtered(all);
+  const n = rs.length;
+  lastN = all.length;
+
+  // KPI
+  set('topCount', all.length + ' Response' + (all.length!==1?'s':''));
+  set('kTotal', n);
+  set('kSub', 'of ' + all.length + ' total');
+  set('kComments', rs.filter(r=>r.answers?.feedback).length);
+  set('filterCount', n!==all.length ? `Showing ${n} of ${all.length}` : '');
+
+  // Roles
+  const rc = {student:0, teacher:0, parent:0};
+  rs.forEach(r => { if(rc[r.role]!==undefined) rc[r.role]++; });
+  set('rS', rc.student); set('rSp', pct(rc.student,n));
+  set('rT', rc.teacher); set('rTp', pct(rc.teacher,n));
+  set('rP', rc.parent);  set('rPp', pct(rc.parent,n));
+  donut('cRS', rc.student, n, '#3b82f6');
+  donut('cRT', rc.teacher, n, '#fbbf24');
+  donut('cRP', rc.parent,  n, '#22c55e');
+
+  // Rating charts
+  const rqs = [
+    {key:'q_fac_cond',   id:'c1', avgId:'a1', col:'#14b8a6'},
+    {key:'q_fac_clean',  id:'c2', avgId:'a2', col:'#14b8a6'},
+    {key:'q_teach_quality',id:'c3',avgId:'a3',col:'#fbbf24'},
+    {key:'q_teach_engage', id:'c4', avgId:'a4',col:'#fbbf24'},
+  ];
+  let fSum=[], tSum=[];
+  rqs.forEach(({key,id,avgId,col}) => {
+    const cnt=[0,0,0,0,0]; let tot=0,sm=0;
+    rs.forEach(r=>{ const v=r.answers?.[key]; if(v>=1&&v<=5){cnt[v-1]++;tot++;sm+=+v;} });
+    const avg = tot?(sm/tot).toFixed(1):null;
+    set(avgId, avg||'—');
+    if(key.startsWith('q_fac')&&avg) fSum.push(+avg);
+    if(key.startsWith('q_teach')&&avg) tSum.push(+avg);
+    barChart(id, ['⭐1','⭐2','⭐3','⭐4','⭐5'], cnt,
+      ['rgba(239,68,68,.75)','rgba(249,115,22,.75)','rgba(234,179,8,.75)','rgba(132,204,86,.75)','rgba(34,197,94,.75)'],
+      avg, col);
+  });
+  set('kFac',   fSum.length ? (fSum.reduce((a,b)=>a+b)/fSum.length).toFixed(1) : '—');
+  set('kTeach', tSum.length ? (tSum.reduce((a,b)=>a+b)/tSum.length).toFixed(1) : '—');
+
+  // MC charts
+  horizMC('cFI','q_fac_improve',
+    ['Classrooms','Library','Sports & Gym','Bathrooms','Tech Lab','Cafeteria'], rs,
+    ['#14b8a6cc','#3b82f6cc','#a78bfacc','#fbbf24cc','#f97316cc','#22c55ecc']);
+  horizMC('cTM','q_teach_methods',
+    ['Group Work','Lectures','Hands-on Projects','Digital Tools','Discussions','Independent Study'], rs,
+    ['#fbbf24cc','#14b8a6cc','#f97316cc','#3b82f6cc','#a78bfacc','#22c55ecc']);
+
+  // Priority horiz
+  const priOpts = ['Better Facilities','Improved Teaching','Mental Health Support','More Activities','Safety & Wellbeing'];
+  const priCols = ['#14b8a6cc','#fbbf24cc','#a78bfacc','#f97316cc','#22c55ecc'];
+  const priC = {}; priOpts.forEach(o=>priC[o]=0);
+  rs.forEach(r=>{ const v=r.answers?.q_priority; if(v&&priC[v]!==undefined) priC[v]++; });
+  horizRaw('cPri', priOpts, priOpts.map(o=>priC[o]), priCols);
+
+  // Pie
+  pie('cPie',['Students','Teachers','Parents'],[rc.student,rc.teacher,rc.parent],['#3b82f6','#fbbf24','#22c55e']);
+
+  renderFeedback(rs);
+}
+
+/* ─── Chart builders ─── */
+function kill(id) { if(CX[id]){CX[id].destroy();delete CX[id];} }
+
+function barChart(id, labels, data, colors, avg, lineCol) {
+  kill(id);
+  const ctx = document.getElementById(id).getContext('2d');
+  const total = data.reduce((a,b)=>a+b,0);
+  CX[id] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ data, backgroundColor:colors, borderColor:colors.map(c=>c.replace('.75','1')), borderWidth:1, borderRadius:6 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ backgroundColor:'#1a2540', borderColor:'rgba(255,255,255,.1)', borderWidth:1,
+          titleColor:'#e2e8f0', bodyColor:'#94a3b8',
+          callbacks:{ label: ctx => { const p=total?Math.round(ctx.raw/total*100):0; return ` ${ctx.raw} votes (${p}%)`; } }
+        }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{color:'#64748b',font:{size:12,weight:'700'}} },
+        y:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#64748b',stepSize:1}, beginAtZero:true }
+      }
+    },
+    plugins:[{
+      id:'avgLine',
+      afterDraw(chart) {
+        if(!avg) return;
+        const {ctx,chartArea:{top,bottom},scales:{x}} = chart;
+        const xp = x.getPixelForValue(+avg-1);
+        ctx.save();
+        ctx.beginPath(); ctx.moveTo(xp,top); ctx.lineTo(xp,bottom);
+        ctx.strokeStyle=lineCol; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.stroke();
+        ctx.font='700 10px Sora'; ctx.fillStyle=lineCol;
+        ctx.fillText('avg '+avg, xp+4, top+12);
+        ctx.restore();
+      }
+    }]
+  });
+}
+
+function horizMC(id, key, opts, rs, colors) {
+  const cnt={}; opts.forEach(o=>cnt[o]=0); let tot=0;
+  rs.forEach(r=>{ const arr=r.answers?.[key]; if(Array.isArray(arr)) arr.forEach(v=>{ if(cnt[v]!==undefined){cnt[v]++;tot++;} }); });
+  const sorted=[...opts].sort((a,b)=>cnt[b]-cnt[a]);
+  horizRaw(id, sorted, sorted.map(o=>cnt[o]), typeof colors==='string'?sorted.map(()=>colors):colors);
+}
+
+function horizRaw(id, labels, data, colors) {
+  kill(id);
+  const ctx = document.getElementById(id).getContext('2d');
+  const total = data.reduce((a,b)=>a+b,0);
+  const bg = Array.isArray(colors) ? colors : data.map((_,i)=>['#14b8a6cc','#3b82f6cc','#a78bfacc','#fbbf24cc','#f97316cc','#22c55ecc'][i%6]);
+  CX[id] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ data, backgroundColor:bg, borderColor:bg.map(c=>c.slice(0,-2)+'ff'), borderWidth:1, borderRadius:5 }] },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ backgroundColor:'#1a2540', borderColor:'rgba(255,255,255,.1)', borderWidth:1,
+          titleColor:'#e2e8f0', bodyColor:'#94a3b8',
+          callbacks:{ label: ctx => { const p=total?Math.round(ctx.raw/total*100):0; return ` ${ctx.raw} (${p}%)`; } }
+        }
+      },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#64748b',stepSize:1}, beginAtZero:true },
+        y:{ grid:{display:false}, ticks:{color:'#cbd5e1',font:{size:11,weight:'600'}} }
+      }
+    }
+  });
+}
+
+function pie(id, labels, data, colors) {
+  kill(id);
+  const ctx = document.getElementById(id).getContext('2d');
+  CX[id] = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:colors.map(c=>c+'cc'), borderColor:colors, borderWidth:2, hoverOffset:8 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{
+        legend:{ position:'right', labels:{color:'#94a3b8',padding:14,font:{size:12},boxWidth:12,borderRadius:3} },
+        tooltip:{ backgroundColor:'#1a2540', borderColor:'rgba(255,255,255,.1)', borderWidth:1,
+          titleColor:'#e2e8f0', bodyColor:'#94a3b8',
+          callbacks:{ label: ctx => { const t=ctx.dataset.data.reduce((a,b)=>a+b,0); const p=t?Math.round(ctx.raw/t*100):0; return ` ${ctx.label}: ${ctx.raw} (${p}%)`; } }
+        }
+      }
+    }
+  });
+}
+
+function donut(id, val, total, color) {
+  kill(id);
+  const ctx = document.getElementById(id).getContext('2d');
+  CX[id] = new Chart(ctx, {
+    type:'doughnut',
+    data:{ datasets:[{ data:[val, Math.max(0,total-val)], backgroundColor:[color+'cc','rgba(255,255,255,.04)'], borderColor:[color,'transparent'], borderWidth:[2,0], hoverOffset:0 }] },
+    options:{ responsive:false, cutout:'68%', animation:{duration:500}, plugins:{legend:{display:false},tooltip:{enabled:false}} }
+  });
+}
+
+/* ─── Feedback ─── */
+function renderFeedback(rs) {
+  if(!rs) rs = filtered(db().responses);
+  const q = document.getElementById('fbSearch').value.toLowerCase();
+  let items = rs.filter(r=>r.answers?.feedback).map(r=>({role:r.role, text:r.answers.feedback, time:r.timestamp}));
+  if(q) items = items.filter(i=>i.text.toLowerCase().includes(q)||i.role.includes(q));
+  items.sort((a,b) => sortNew ? new Date(b.time)-new Date(a.time) : new Date(a.time)-new Date(b.time));
+  set('fbCount', items.length + ' comment' + (items.length!==1?'s':''));
+  const el = document.getElementById('fbList');
+  if(!items.length){ el.innerHTML='<div class="empty-msg">No matching feedback.</div>'; return; }
+  el.innerHTML = items.map((f,i)=>`
+    <div class="fb-item" style="animation-delay:${i*.04}s">
+      <span class="fb-role-badge badge-${f.role}">${f.role}</span>
+      <span class="fb-text">${esc(f.text)}</span>
+      <span class="fb-time">${ago(f.time)}</span>
+    </div>`).join('');
+}
+
+function toggleSort() {
+  sortNew = !sortNew;
+  set('sortLbl', sortNew ? 'Newest first' : 'Oldest first');
+  renderFeedback();
+}
+
+/* ─── Exports ─── */
+function exportCSV() {
+  const rs = db().responses;
+  if(!rs.length){ toast('No data to export'); return; }
+  const hd = ['Timestamp','Role','Fac Condition','Fac Improvements','Fac Clean','Teaching Quality','Teaching Engagement','Teaching Methods','Top Priority','Feedback'];
+  const rows = rs.map(r=>[
+    r.timestamp, r.role,
+    r.answers?.q_fac_cond||'',
+    (r.answers?.q_fac_improve||[]).join('; '),
+    r.answers?.q_fac_clean||'',
+    r.answers?.q_teach_quality||'',
+    r.answers?.q_teach_engage||'',
+    (r.answers?.q_teach_methods||[]).join('; '),
+    r.answers?.q_priority||'',
+    (r.answers?.feedback||'').replace(/,/g,' ')
+  ]);
+  dl([hd,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n'), 'survey_results.csv','text/csv');
+  toast('✅ CSV exported');
+}
+function exportJSON() {
+  const rs = db().responses;
+  if(!rs.length){ toast('No data to export'); return; }
+  dl(JSON.stringify(rs,null,2),'survey_results.json','application/json');
+  toast('✅ JSON exported');
+}
+function dl(content,name,type) {
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click();
+}
+function clearAll() {
+  if(confirm('Delete ALL survey responses? This cannot be undone.')) {
+    save({responses:[]}); lastN=0; render(); toast('🗑 All data cleared');
+  }
+}
+
+/* ─── Helpers ─── */
+const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+const pct = (v,t) => t ? Math.round(v/t*100)+'% of filtered' : '0%';
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function ago(iso) {
+  const d=(Date.now()-new Date(iso))/1000;
+  if(d<60) return 'just now';
+  if(d<3600) return Math.floor(d/60)+'m ago';
+  if(d<86400) return Math.floor(d/3600)+'h ago';
+  return Math.floor(d/86400)+'d ago';
+}
+let toastT;
+function toast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ─── Seed demo data ─── */
+(function seed() {
+  const d = db();
+  if(d.responses.length) return;
+  const rows = [
+    {role:'student',q_fac_cond:3,q_fac_clean:4,q_fac_improve:['Classrooms','Bathrooms'],q_teach_quality:4,q_teach_engage:3,q_teach_methods:['Group Work','Digital Tools'],q_priority:'Better Facilities',feedback:'The library needs more modern books.'},
+    {role:'student',q_fac_cond:4,q_fac_clean:4,q_fac_improve:['Library'],q_teach_quality:5,q_teach_engage:4,q_teach_methods:['Hands-on Projects'],q_priority:'Improved Teaching',feedback:'Teachers are very supportive!'},
+    {role:'teacher',q_fac_cond:2,q_fac_clean:3,q_fac_improve:['Tech Lab','Classrooms'],q_teach_quality:4,q_teach_engage:4,q_teach_methods:['Discussions','Digital Tools'],q_priority:'Better Facilities',feedback:''},
+    {role:'student',q_fac_cond:5,q_fac_clean:5,q_fac_improve:[],q_teach_quality:4,q_teach_engage:5,q_teach_methods:['Group Work','Discussions'],q_priority:'More Activities',feedback:'More sports would be great.'},
+    {role:'parent',q_fac_cond:3,q_fac_clean:3,q_fac_improve:['Bathrooms','Cafeteria'],q_teach_quality:3,q_teach_engage:3,q_teach_methods:['Lectures'],q_priority:'Safety & Wellbeing',feedback:''},
+    {role:'student',q_fac_cond:4,q_fac_clean:5,q_fac_improve:['Sports & Gym'],q_teach_quality:5,q_teach_engage:5,q_teach_methods:['Hands-on Projects','Independent Study'],q_priority:'Improved Teaching',feedback:'Best school year so far!'},
+    {role:'teacher',q_fac_cond:3,q_fac_clean:4,q_fac_improve:['Tech Lab'],q_teach_quality:4,q_teach_engage:4,q_teach_methods:['Digital Tools','Group Work'],q_priority:'Mental Health Support',feedback:'Students need more mental health resources.'},
+    {role:'parent',q_fac_cond:4,q_fac_clean:4,q_fac_improve:['Cafeteria'],q_teach_quality:4,q_teach_engage:4,q_teach_methods:['Group Work'],q_priority:'More Activities',feedback:''},
+    {role:'student',q_fac_cond:2,q_fac_clean:2,q_fac_improve:['Bathrooms','Classrooms','Library'],q_teach_quality:3,q_teach_engage:2,q_teach_methods:['Lectures'],q_priority:'Better Facilities',feedback:'Classrooms are too hot in summer.'},
+    {role:'student',q_fac_cond:5,q_fac_clean:5,q_fac_improve:[],q_teach_quality:5,q_teach_engage:5,q_teach_methods:['Hands-on Projects','Discussions','Digital Tools'],q_priority:'Improved Teaching',feedback:'Everything is great, keep it up!'},
+  ];
+  const off=[0,-1,-2,-3,-4,-5,-6,-60,-120,-180];
+  rows.forEach(({role,feedback,...ans},i)=>{
+    const ts=new Date(Date.now()+off[i]*60000).toISOString();
+    d.responses.push({role, answers:{...ans,feedback}, timestamp:ts});
+  });
+  save(d);
+})();
+</script>
+</body>
+</html>

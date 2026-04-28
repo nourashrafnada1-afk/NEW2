@@ -1,0 +1,15 @@
+{
+  "name": "school-survey-analysis",
+  "version": "1.0.0",
+  "description": "School survey website with admin dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
