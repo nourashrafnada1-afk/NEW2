@@ -3,105 +3,507 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>School Survey</title>
+<title>SchoolSurvey — Academic Feedback Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#f7f4ef;--navy:#111827;--teal:#0d9488;--teal-light:#14b8a6;--teal-pale:#e6faf9;
-  --amber:#d97706;--amber-light:#fbbf24;--white:#fff;--gray:#6b7280;--border:#e5e0d8;
-  --shadow:0 16px 60px rgba(0,0,0,.08);
+:root {
+  --bg:       #f7f4ef;
+  --navy:     #111827;
+  --teal:     #0d9488;
+  --teal-l:   #14b8a6;
+  --teal-p:   #e6faf9;
+  --amber:    #d97706;
+  --amber-l:  #fbbf24;
+  --white:    #ffffff;
+  --gray:     #6b7280;
+  --border:   #e5e0d8;
+  --shadow:   0 4px 24px rgba(0,0,0,0.08);
+  --font-head:'Lora', serif;
+  --font-body:'Sora', sans-serif;
+  --radius:   18px;
+  --radius-sm:12px;
+  --transition:0.22s cubic-bezier(.4,0,.2,1);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--navy);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 650px 420px at 8% 25%,rgba(13,148,136,.08) 0%,transparent 70%),radial-gradient(ellipse 650px 460px at 88% 76%,rgba(217,119,6,.07) 0%,transparent 70%);pointer-events:none;z-index:0}
-.nav{position:sticky;top:0;z-index:50;height:76px;background:rgba(247,244,239,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 52px}
-.logo{font-family:'Lora',serif;font-weight:700;font-size:22px;color:var(--navy);text-decoration:none}.logo span{color:var(--teal)}
-.links{display:flex;gap:18px;align-items:center}.links a{color:var(--gray);text-decoration:none;font-size:14px;font-weight:700;padding:11px 18px;border-radius:12px;transition:.2s}.links a:hover,.links a.active{background:rgba(0,0,0,.045);color:var(--navy)}
-.actions{display:flex;gap:12px;align-items:center}.moon{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:#fff;display:grid;place-items:center;font-size:20px;box-shadow:0 5px 18px rgba(0,0,0,.06)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border:none;border-radius:12px;font-family:'Sora',sans-serif;font-weight:800;cursor:pointer;transition:.2s}.btn-primary{background:var(--teal);color:#fff;padding:14px 24px;box-shadow:0 10px 26px rgba(13,148,136,.22)}.btn-primary:hover{background:var(--teal-light);transform:translateY(-2px)}.btn-outline{background:rgba(255,255,255,.55);color:var(--navy);padding:14px 24px;border:2px solid var(--border)}.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
-.hero{position:relative;z-index:1;min-height:calc(100vh - 76px);display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:70px;max-width:1220px;margin:0 auto;padding:50px 32px 70px}
-.tag{display:inline-flex;align-items:center;gap:8px;background:var(--teal-pale);border:1px solid rgba(13,148,136,.22);color:var(--teal);border-radius:999px;padding:8px 18px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:30px}
-h1{font-family:'Lora',serif;font-size:clamp(48px,6vw,76px);line-height:1.08;font-weight:700;letter-spacing:-.03em;margin-bottom:28px;color:var(--navy)}h1 em{display:block;color:var(--teal);font-style:italic}
-.lead{max-width:620px;color:#667085;font-size:19px;line-height:1.75;margin-bottom:44px}.hero-buttons{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:60px}.hero-buttons .btn{font-size:16px;min-width:185px}
-.stats{display:flex;gap:56px}.stat strong{display:block;font-size:34px;color:var(--teal);font-weight:800;line-height:1}.stat span{display:block;margin-top:9px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);font-weight:700}
-.cards{position:relative;min-height:540px}.mini-card{position:absolute;background:rgba(255,255,255,.88);border:1px solid var(--border);border-radius:22px;padding:26px 28px;box-shadow:var(--shadow);backdrop-filter:blur(8px);width:320px}.mini-card h3{font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.12em;margin-bottom:18px}.facility{right:110px;top:15px}.teach{right:70px;top:205px}.roles{right:110px;top:405px}
-.row{display:grid;grid-template-columns:95px 1fr 45px;gap:13px;align-items:center;margin:14px 0;color:var(--gray);font-size:14px;font-weight:600}.bar{height:8px;background:#e8e2d8;border-radius:999px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,var(--teal),#6ed5ca);border-radius:999px}.pct{color:var(--teal);font-size:12px;font-weight:800;text-align:right}.score{display:flex;align-items:center;justify-content:space-between}.score-num{font-size:42px;color:#5abdb3;font-family:'Lora',serif;font-weight:700}.stars{color:var(--amber-light);letter-spacing:2px;margin-top:6px}.muted{color:#9ca3af;font-size:13px}.cap{font-size:12px;color:#9ca3af;margin-top:3px}.grad{font-size:38px}
-.section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:70px 32px}.section h2{font-family:'Lora',serif;font-size:38px;text-align:center;margin-bottom:14px}.section p{text-align:center;color:var(--gray);line-height:1.7;max-width:650px;margin:0 auto 30px}
-@media(max-width:900px){.nav{padding:0 18px}.links{display:none}.hero{grid-template-columns:1fr;padding-top:42px}.cards{display:none}.stats{gap:28px;flex-wrap:wrap}h1{font-size:44px}.lead{font-size:16px}.hero-buttons .btn{width:100%}.actions .btn-primary{padding:12px 16px}}
+body.dark {
+  --bg:     #0b0e1a;
+  --navy:   #e8ecf8;
+  --white:  #1c2240;
+  --gray:   #9aa5cc;
+  --border: #2a3460;
+  --teal-p: rgba(13,148,136,0.1);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--font-body);
+  background:var(--bg); color:var(--navy);
+  min-height:100vh; overflow-x:hidden;
+  transition:background var(--transition), color var(--transition);
+}
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 700px 500px at 15% 20%, rgba(13,148,136,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 400px at 85% 80%, rgba(217,119,6,0.05) 0%, transparent 70%);
+}
+
+/* ── NAVBAR ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(247,244,239,0.92); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  padding:0 40px; height:64px;
+  display:flex; align-items:center; justify-content:space-between;
+  transition:background var(--transition);
+}
+body.dark nav { background:rgba(11,14,26,0.92); }
+.nav-logo { font-family:var(--font-head); font-size:18px; font-weight:700; color:var(--navy); text-decoration:none; }
+.nav-logo span { color:var(--teal); }
+.nav-links { display:flex; align-items:center; gap:4px; }
+.nav-link {
+  padding:7px 15px; border-radius:10px; font-size:13px; font-weight:600;
+  color:var(--gray); text-decoration:none; transition:all var(--transition);
+}
+.nav-link:hover, .nav-link.active { color:var(--navy); background:rgba(0,0,0,0.05); }
+body.dark .nav-link:hover, body.dark .nav-link.active { background:rgba(255,255,255,0.08); color:var(--navy); }
+.nav-actions { display:flex; align-items:center; gap:10px; }
+.theme-btn {
+  width:38px; height:38px; border-radius:50%; border:1px solid var(--border);
+  background:var(--white); display:flex; align-items:center; justify-content:center;
+  font-size:15px; cursor:pointer; transition:all var(--transition);
+}
+.theme-btn:hover { border-color:var(--teal); }
+.cta-nav {
+  padding:9px 20px; background:var(--teal); border-radius:10px;
+  color:#fff; font-size:13px; font-weight:700; text-decoration:none;
+  transition:all var(--transition);
+}
+.cta-nav:hover { background:var(--teal-l); box-shadow:0 4px 18px rgba(13,148,136,0.3); }
+
+/* ── HERO ── */
+.hero {
+  min-height:100vh; padding:100px 40px 80px;
+  display:flex; align-items:center; position:relative; z-index:1;
+  max-width:1160px; margin:0 auto;
+}
+.hero-content { max-width:620px; }
+
+.eyebrow {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--teal-p); border:1px solid rgba(13,148,136,0.2);
+  color:var(--teal); font-size:11px; font-weight:700; letter-spacing:0.1em;
+  text-transform:uppercase; padding:6px 16px; border-radius:100px; margin-bottom:24px;
+}
+.hero h1 {
+  font-family:var(--font-head); font-size:clamp(2.4rem,5vw,4rem);
+  font-weight:700; line-height:1.15; margin-bottom:20px; color:var(--navy);
+}
+.hero h1 em { font-style:italic; color:var(--teal); }
+.hero p { font-size:1.05rem; color:var(--gray); line-height:1.8; max-width:500px; margin-bottom:40px; }
+.hero-btns { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:56px; }
+
+.btn-primary {
+  padding:14px 32px; background:var(--teal); border-radius:var(--radius-sm);
+  color:#fff; font-family:var(--font-body); font-size:15px; font-weight:700;
+  text-decoration:none; transition:all var(--transition);
+  display:inline-flex; align-items:center; gap:8px;
+  box-shadow:0 4px 20px rgba(13,148,136,0.25);
+}
+.btn-primary:hover { background:var(--teal-l); transform:translateY(-2px); box-shadow:0 8px 32px rgba(13,148,136,0.35); }
+.btn-outline {
+  padding:14px 28px; background:transparent; border:2px solid var(--border);
+  border-radius:var(--radius-sm); color:var(--navy); font-family:var(--font-body);
+  font-size:15px; font-weight:600; text-decoration:none;
+  transition:all var(--transition); display:inline-flex; align-items:center; gap:8px;
+}
+.btn-outline:hover { border-color:var(--teal); color:var(--teal); }
+
+.hero-stats { display:flex; gap:36px; flex-wrap:wrap; }
+.stat-item{ }
+.stat-num { font-family:var(--font-head); font-size:2.2rem; font-weight:700; color:var(--teal); line-height:1; }
+.stat-label { font-size:12px; color:var(--gray); margin-top:4px; text-transform:uppercase; letter-spacing:0.06em; }
+
+/* Decorative right panel */
+.hero-visual {
+  position:absolute; right:40px; top:50%; transform:translateY(-50%);
+  display:flex; flex-direction:column; gap:16px;
+  pointer-events:none; opacity:0.7;
+}
+.vis-card {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:var(--radius); padding:20px 22px; width:260px;
+  box-shadow:var(--shadow);
+  animation:float 5s ease-in-out infinite;
+}
+.vis-card:nth-child(2) { animation-delay:1.5s; margin-left:32px; }
+.vis-card:nth-child(3) { animation-delay:3s; }
+
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+.vis-label { font-size:11px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px; }
+.vis-bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.vis-bar-label { font-size:12px; color:var(--navy); width:80px; flex-shrink:0; }
+.vis-bar-wrap { flex:1; height:6px; background:var(--border); border-radius:100px; overflow:hidden; }
+.vis-bar-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,var(--teal),var(--teal-l)); }
+.vis-bar-pct { font-size:11px; font-weight:700; color:var(--teal); width:32px; text-align:right; }
+.vis-score { display:flex; justify-content:space-between; align-items:center; }
+.vs-num { font-family:var(--font-head); font-size:2.5rem; font-weight:700; color:var(--teal); }
+.vs-stars { color:var(--amber-l); font-size:18px; }
+.vs-label { font-size:11px; color:var(--gray); margin-top:2px; }
+
+/* ── FEATURES SECTION ── */
+.section { padding:80px 40px; max-width:1160px; margin:0 auto; position:relative; z-index:1; }
+.section-header { text-align:center; margin-bottom:56px; }
+.sec-eyebrow {
+  font-size:11px; font-weight:700; color:var(--teal); text-transform:uppercase;
+  letter-spacing:0.1em; margin-bottom:14px;
+}
+.sec-title { font-family:var(--font-head); font-size:clamp(1.8rem,3.5vw,2.8rem); font-weight:700; color:var(--navy); }
+.sec-sub { color:var(--gray); margin-top:10px; font-size:1rem; line-height:1.7; }
+
+.features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; }
+.feat-card {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:var(--radius); padding:32px;
+  transition:all var(--transition);
+}
+.feat-card:hover { transform:translateY(-5px); box-shadow:0 12px 40px rgba(0,0,0,0.1); border-color:var(--teal); }
+.feat-icon {
+  width:52px; height:52px; border-radius:14px; margin-bottom:20px;
+  display:flex; align-items:center; justify-content:center; font-size:24px;
+}
+.feat-card h3 { font-family:var(--font-head); font-size:1.05rem; font-weight:700; color:var(--navy); margin-bottom:10px; }
+.feat-card p { font-size:13px; color:var(--gray); line-height:1.7; }
+
+/* ── HOW IT WORKS ── */
+.steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:24px; }
+.step-card {
+  text-align:center; padding:32px 20px;
+  background:var(--white); border:1px solid var(--border);
+  border-radius:var(--radius);
+}
+.step-num {
+  width:50px; height:50px; border-radius:50%; margin:0 auto 20px;
+  background:linear-gradient(135deg,var(--teal),var(--teal-l));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-head); font-size:1.3rem; font-weight:700; color:#fff;
+}
+.step-card h3 { font-family:var(--font-head); font-size:1rem; font-weight:700; color:var(--navy); margin-bottom:8px; }
+.step-card p { font-size:13px; color:var(--gray); line-height:1.6; }
+
+/* ── CTA BANNER ── */
+.cta-banner {
+  margin:0 40px 80px; padding:56px 48px;
+  background:linear-gradient(135deg, var(--teal), var(--teal-l));
+  border-radius:24px; text-align:center;
+  position:relative; overflow:hidden; z-index:1;
+}
+.cta-banner::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 60% 80% at 80% 50%, rgba(255,255,255,0.1), transparent);
+}
+.cta-banner h2 { font-family:var(--font-head); font-size:clamp(1.6rem,3vw,2.4rem); font-weight:700; color:#fff; margin-bottom:12px; }
+.cta-banner p { color:rgba(255,255,255,0.82); font-size:1rem; margin-bottom:32px; }
+.cta-btns { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+.cta-white {
+  padding:13px 30px; background:#fff; border-radius:var(--radius-sm);
+  color:var(--teal); font-family:var(--font-body); font-size:14px; font-weight:700;
+  text-decoration:none; transition:all var(--transition);
+}
+.cta-white:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(0,0,0,0.15); }
+.cta-ghost {
+  padding:13px 30px; background:transparent;
+  border:2px solid rgba(255,255,255,0.5);
+  border-radius:var(--radius-sm); color:#fff;
+  font-family:var(--font-body); font-size:14px; font-weight:700;
+  text-decoration:none; transition:all var(--transition);
+}
+.cta-ghost:hover { background:rgba(255,255,255,0.15); border-color:#fff; }
+
+/* ── FOOTER ── */
+footer {
+  background:var(--white); border-top:1px solid var(--border);
+  padding:28px 40px; text-align:center;
+  color:var(--gray); font-size:13px; position:relative; z-index:1;
+}
+footer a { color:var(--gray); text-decoration:none; }
+footer a:hover { color:var(--teal); }
+.footer-links { display:flex; gap:20px; justify-content:center; margin-top:10px; }
+
+/* Stats ticker */
+.live-bar {
+  background:var(--teal); padding:10px 40px;
+  display:flex; align-items:center; justify-content:center; gap:32px;
+  position:relative; z-index:1; flex-wrap:wrap;
+}
+.lb-item { display:flex; align-items:center; gap:8px; color:#fff; font-size:13px; font-weight:600; }
+.lb-dot { width:6px; height:6px; background:rgba(255,255,255,0.6); border-radius:50%; }
+
+@media(max-width:900px) {
+  .hero-visual { display:none; }
+  nav { padding:0 20px; }
+  .hero { padding:100px 20px 60px; }
+  .section { padding:60px 20px; }
+  .cta-banner { margin:0 20px 60px; padding:40px 24px; }
+  footer { padding:24px 20px; }
+}
+@media(max-width:600px) {
+  .nav-links { display:none; }
+  .features-grid { grid-template-columns:1fr; }
+  .steps-grid { grid-template-columns:1fr 1fr; }
+}
 </style>
 </head>
 <body>
-<nav class="nav">
-  <a class="logo" href="/">School<span>Survey</span></a>
-  <div class="links">
-    <a class="active" href="/">Home</a>
-    <a href="/survey">Take Survey</a>
-    <a href="/admin">Dashboard</a>
-    <a href="#about">About</a>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="/" class="nav-logo">School<span>Survey</span></a>
+  <div class="nav-links">
+    <a href="/"     class="nav-link active">Home</a>
+    <a href="/survey"    class="nav-link">Take Survey</a>
+    <a href="/admin" class="nav-link">Dashboard</a>
+    <a href="#about"     class="nav-link">About</a>
   </div>
-  <div class="actions">
-    <button class="moon" type="button">🌙</button>
-    <a class="btn btn-primary" href="/survey">Start Survey →</a>
+  <div class="nav-actions">
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <a href="/survey" class="cta-nav">Start Survey →</a>
   </div>
 </nav>
 
-<main class="hero">
-  <section>
-    <div class="tag">📋 2024–2025 Academic Year</div>
-    <h1>Understand Your <em>School Better</em></h1>
-    <p class="lead">A real-time feedback platform for students, teachers, and parents. Collect meaningful insights and use data to improve every aspect of the school experience.</p>
-    <div class="hero-buttons">
-      <a class="btn btn-primary" href="/survey">📝 Take the Survey</a>
-      <a class="btn btn-outline" href="/admin">📊 Admin Dashboard</a>
-    </div>
-    <div class="stats">
-      <div class="stat"><strong id="responsesCount">0</strong><span>Responses</span></div>
-      <div class="stat"><strong id="avgRating">—</strong><span>Avg. Rating</span></div>
-      <div class="stat"><strong>4</strong><span>Question Sections</span></div>
-    </div>
-  </section>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="eyebrow">📋 2024–2025 Academic Year</div>
+    <h1>Understand Your<br><em>School Better</em></h1>
+    <p>A real-time feedback platform for students, teachers, and parents. Collect meaningful insights and use data to improve every aspect of the school experience.</p>
 
-  <section class="cards" aria-hidden="true">
-    <div class="mini-card facility">
-      <h3>Facility Ratings</h3>
-      <div class="row"><span>Classrooms</span><div class="bar"><div class="fill" style="width:82%"></div></div><span class="pct">82%</span></div>
-      <div class="row"><span>Library</span><div class="bar"><div class="fill" style="width:65%"></div></div><span class="pct">65%</span></div>
-      <div class="row"><span>Tech Lab</span><div class="bar"><div class="fill" style="width:54%"></div></div><span class="pct">54%</span></div>
+    <div class="hero-btns">
+      <a href="/survey"    class="btn-primary">📝 Take the Survey</a>
+      <a href="/admin" class="btn-outline">📊 Admin Dashboard</a>
     </div>
-    <div class="mini-card teach">
-      <h3>Teaching Score</h3>
-      <div class="score"><div><div class="score-num" id="cardScore">—</div><div class="stars">★★★★★</div><div class="cap">out of 5.0</div></div><div style="text-align:center"><div class="grad">🎓</div><div class="muted">Quality Score</div></div></div>
-    </div>
-    <div class="mini-card roles">
-      <h3>Role Breakdown</h3>
-      <div class="row"><span>🎒 Students</span><div class="bar"><div class="fill" style="width:71%"></div></div><span class="pct">71%</span></div>
-      <div class="row"><span>🎓 Teachers</span><div class="bar"><div class="fill" style="width:19%"></div></div><span class="pct">19%</span></div>
-      <div class="row"><span>👨‍👩‍👧 Parents</span><div class="bar"><div class="fill" style="width:10%"></div></div><span class="pct">10%</span></div>
-    </div>
-  </section>
-</main>
 
-<section class="section" id="about">
-  <h2>Simple survey. Live dashboard.</h2>
-  <p>Students, teachers, and parents can submit answers from any device. The admin dashboard reads the saved responses and shows percentages, charts, feedback, and exports.</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num" id="heroTotal">0</div>
+        <div class="stat-label">Responses</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="heroAvg">—</div>
+        <div class="stat-label">Avg. Rating</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4</div>
+        <div class="stat-label">Question Sections</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative floating cards -->
+  <div class="hero-visual" aria-hidden="true">
+    <div class="vis-card">
+      <div class="vis-label">Facility Ratings</div>
+      <div class="vis-bar-row">
+        <span class="vis-bar-label">Classrooms</span>
+        <div class="vis-bar-wrap"><div class="vis-bar-fill" style="width:82%"></div></div>
+        <span class="vis-bar-pct">82%</span>
+      </div>
+      <div class="vis-bar-row">
+        <span class="vis-bar-label">Library</span>
+        <div class="vis-bar-wrap"><div class="vis-bar-fill" style="width:65%"></div></div>
+        <span class="vis-bar-pct">65%</span>
+      </div>
+      <div class="vis-bar-row">
+        <span class="vis-bar-label">Tech Lab</span>
+        <div class="vis-bar-wrap"><div class="vis-bar-fill" style="width:54%"></div></div>
+        <span class="vis-bar-pct">54%</span>
+      </div>
+    </div>
+    <div class="vis-card">
+      <div class="vis-label">Teaching Score</div>
+      <div class="vis-score">
+        <div>
+          <div class="vs-num" id="heroVisScore">4.2</div>
+          <div class="vs-stars">★★★★☆</div>
+          <div class="vs-label">out of 5.0</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:2rem">🎓</div>
+          <div style="font-size:11px;color:var(--gray);margin-top:4px">Quality Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="vis-card">
+      <div class="vis-label">Role Breakdown</div>
+      <div class="vis-bar-row">
+        <span class="vis-bar-label">🎒 Students</span>
+        <div class="vis-bar-wrap"><div class="vis-bar-fill" style="width:71%"></div></div>
+        <span class="vis-bar-pct">71%</span>
+      </div>
+      <div class="vis-bar-row">
+        <span class="vis-bar-label">🎓 Teachers</span>
+        <div class="vis-bar-wrap"><div class="vis-bar-fill" style="width:19%"></div></div>
+        <span class="vis-bar-pct">19%</span>
+      </div>
+      <div class="vis-bar-row">
+        <span class="vis-bar-label">👨‍👩‍👧 Parents</span>
+        <div class="vis-bar-wrap"><div class="vis-bar-fill" style="width:10%"></div></div>
+        <span class="vis-bar-pct">10%</span>
+      </div>
+    </div>
+  </div>
 </section>
 
+<!-- LIVE BAR -->
+<div class="live-bar">
+  <div class="lb-item"><div class="lb-dot"></div><span id="lbResponses">Loading data...</span></div>
+  <div class="lb-item"><div class="lb-dot"></div><span>Secret code: ADMIN2026</span></div>
+  <div class="lb-item"><div class="lb-dot"></div><span>Admin: admin / admin123</span></div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="about">
+  <div class="section-header">
+    <div class="sec-eyebrow">What we offer</div>
+    <div class="sec-title">Everything You Need</div>
+    <div class="sec-sub">A complete feedback solution built specifically for academic environments</div>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(13,148,136,0.1)">📝</div>
+      <h3>Smart Survey Form</h3>
+      <p>Step-by-step multi-section survey covering facilities, teaching quality, and open feedback — with validation and progress tracking.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(217,119,6,0.1)">📊</div>
+      <h3>Real-Time Analytics</h3>
+      <p>Instant charts and breakdowns as responses come in. Rating distributions, multi-choice tallies, and priority rankings.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(139,92,246,0.1)">🔐</div>
+      <h3>Secure Admin Access</h3>
+      <p>Three-factor admin login with username, password, and secret access code. Session persistence across page reloads.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(59,130,246,0.1)">💾</div>
+      <h3>Local Storage</h3>
+      <p>All data stored locally in your browser. No external database or server required — fully self-contained and private.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(34,197,94,0.1)">📥</div>
+      <h3>Export to CSV</h3>
+      <p>Download a full spreadsheet of all responses with one click — ready for Excel, Google Sheets, or SPSS analysis.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(239,68,68,0.1)">🎨</div>
+      <h3>Beautiful Design</h3>
+      <p>Professional UI with dark mode, smooth animations, responsive layout, and a cohesive design language throughout.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" style="padding-top:0">
+  <div class="section-header">
+    <div class="sec-eyebrow">How it works</div>
+    <div class="sec-title">Simple Three-Step Process</div>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h3>Select Your Role</h3>
+      <p>Choose whether you're a student, teacher, or parent — the survey is designed for all three.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h3>Fill Out Survey</h3>
+      <p>Rate facilities, teaching quality, and share open feedback across four easy steps.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h3>Submit &amp; View Results</h3>
+      <p>Your response is saved. Admins can view real-time analytics on the secure dashboard.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <h3>Act on Insights</h3>
+      <p>Export data, track trends, and use the findings to improve your school environment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <h2>Ready to Collect Feedback?</h2>
+  <p>Takes just 3 minutes. Help your school leadership make better decisions.</p>
+  <div class="cta-btns">
+    <a href="/survey"    class="cta-white">📝 Start Survey Now</a>
+    <a href="/admin" class="cta-ghost">🔐 Admin Dashboard</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>© 2025 SchoolSurvey Analysis System &nbsp;·&nbsp; Built with HTML, CSS &amp; JavaScript &nbsp;·&nbsp; Data stored in Local Storage</div>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/survey">Survey</a>
+    <a href="/admin">Dashboard</a>
+    <a href="#about">About</a>
+  </div>
+</footer>
+
 <script>
-function getData(){try{return JSON.parse(localStorage.getItem('schoolSurveyData'))||{responses:[]}}catch{return{responses:[]}}}
-function renderHomeStats(){
-  const responses=getData().responses||[];
-  document.getElementById('responsesCount').textContent=responses.length;
-  let sum=0,count=0;
-  responses.forEach(r=>{
-    const a=r.answers||{};
-    ['q_fac_cond','q_fac_clean','q_teach_quality','q_teach_engage'].forEach(k=>{if(a[k]){sum+=Number(a[k]);count++;}});
-  });
-  const avg=count?(sum/count).toFixed(1):'—';
-  document.getElementById('avgRating').textContent=avg;
-  document.getElementById('cardScore').textContent=avg;
+/* Load live stats from storage */
+function loadStats() {
+  try {
+    const d = JSON.parse(localStorage.getItem('schoolSurveyData')) || { responses: [] };
+    const n = d.responses.length;
+    document.getElementById('heroTotal').textContent = n;
+
+    let sum = 0, count = 0;
+    d.responses.forEach(r => {
+      if (r.answers?.q_fac_cond)      { sum += r.answers.q_fac_cond;      count++; }
+      if (r.answers?.q_teach_quality) { sum += r.answers.q_teach_quality; count++; }
+    });
+    const avg = count ? (sum/count).toFixed(1) : '—';
+    document.getElementById('heroAvg').textContent     = avg;
+    if (document.getElementById('heroVisScore'))
+      document.getElementById('heroVisScore').textContent = avg !== '—' ? avg : '4.2';
+
+    document.getElementById('lbResponses').textContent =
+      `${n} response${n!==1?'s':''} collected ${n>0?'— latest: '+fmtAgo(d.responses[d.responses.length-1]?.timestamp):''}`;
+  } catch(e) {
+    document.getElementById('lbResponses').textContent = '0 responses collected';
+  }
 }
-renderHomeStats();
+
+function fmtAgo(iso) {
+  if (!iso) return 'just now';
+  const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 60000) return 'just now';
+  if (diff < 3600000) return Math.floor(diff/60000) + ' min ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + ' hr ago';
+  return Math.floor(diff/86400000) + ' days ago';
+}
+
+/* Theme */
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark');
+  document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('siteTheme', isDark ? 'dark' : 'light');
+}
+(function() {
+  const saved = localStorage.getItem('siteTheme');
+  if (saved === 'dark') {
+    document.body.classList.add('dark');
+    const btn = document.getElementById('themeBtn');
+    if (btn) btn.textContent = '☀️';
+  }
+})();
+
+loadStats();
 </script>
 </body>
 </html>
