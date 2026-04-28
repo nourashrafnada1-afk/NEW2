@@ -1,9 +1,12 @@
 # School Survey Analysis
 
-Railway start command: `npm start`
+Railway-ready website.
 
-Pages:
-- `/` survey
+Routes:
+- `/` home landing page
+- `/survey` survey page
 - `/admin` admin dashboard
 
-Admin login: `admin` / `admin123`
+Admin login:
+- username: `admin`
+- password: `admin123`

@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Survey</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f4ef;
+  --navy: #111827;
+  --teal: #0d9488;
+  --teal-light: #14b8a6;
+  --teal-pale: #e6faf9;
+  --amber: #d97706;
+  --amber-light: #fbbf24;
+  --amber-pale: #fef9ee;
+  --red: #dc2626;
+  --white: #ffffff;
+  --gray: #6b7280;
+  --border: #e5e0d8;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Decorative background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 10% 20%, rgba(13,148,136,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 400px at 90% 80%, rgba(217,119,6,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── PAGES ── */
+.screen { display: none; position: relative; z-index: 1; }
+.screen.active { display: block; }
+
+/* ── PROGRESS BAR ── */
+.progress-wrap {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.progress-logo {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--navy);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.progress-logo span { color: var(--teal); }
+
+.progress-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.step-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  position: relative;
+}
+
+.step-dot::after {
+  content: '';
+  position: absolute;
+  top: 13px;
+  left: calc(50% + 14px);
+  right: calc(-50% + 14px);
+  height: 2px;
+  background: var(--border);
+  transition: background 0.4s;
+}
+
+.step-dot:last-child::after { display: none; }
+.step-dot.done::after { background: var(--teal); }
+
+.dot-circle {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray);
+  transition: all 0.3s;
+  position: relative;
+  z-index: 1;
+}
+
+.step-dot.active .dot-circle {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: var(--white);
+  box-shadow: 0 0 0 4px rgba(13,148,136,0.15);
+}
+
+.step-dot.done .dot-circle {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: var(--white);
+}
+
+.dot-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gray);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.step-dot.active .dot-label { color: var(--teal); }
+.step-dot.done .dot-label { color: var(--teal); }
+
+.progress-skip { display: none; }
+
+/* ── MAIN LAYOUT ── */
+.survey-layout {
+  min-height: 100vh;
+  padding-top: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 40px;
+}
+
+.survey-box {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 24px;
+  animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SCREEN 1 — WELCOME ── */
+.welcome-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal-pale);
+  border: 1px solid rgba(13,148,136,0.2);
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 100px;
+  margin-bottom: 20px;
+}
+
+.welcome-header h1 {
+  font-family: 'Lora', serif;
+  font-size: clamp(30px, 5vw, 48px);
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+
+.welcome-header h1 em {
+  font-style: italic;
+  color: var(--teal);
+}
+
+.welcome-header p {
+  color: var(--gray);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+/* Role cards */
+.role-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 12px;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.role-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.role-card:hover {
+  border-color: var(--teal);
+  box-shadow: 0 4px 20px rgba(13,148,136,0.12);
+  transform: translateY(-2px);
+}
+
+.role-card.selected {
+  border-color: var(--teal);
+  background: var(--teal-pale);
+}
+
+.role-emoji { font-size: 28px; margin-bottom: 8px; display: block; }
+.role-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+.role-sub { font-size: 11px; color: var(--gray); margin-top: 3px; }
+
+/* Info strips */
+.info-strips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.info-strip {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-icon { font-size: 20px; flex-shrink: 0; }
+.info-text { font-size: 12px; color: var(--gray); line-height: 1.4; }
+.info-text strong { display: block; color: var(--navy); font-size: 13px; }
+
+/* ── QUESTION CARD ── */
+.q-section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 6px;
+  margin-bottom: 28px;
+}
+
+.tag-fac { background: rgba(13,148,136,0.1); color: var(--teal); }
+.tag-teach { background: rgba(217,119,6,0.1); color: var(--amber); }
+
+.page-heading {
+  font-family: 'Lora', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.page-sub {
+  color: var(--gray);
+  font-size: 14px;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.q-block {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px 26px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.q-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.q-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+/* Rating row */
+.rating-row {
+  display: flex;
+  gap: 8px;
+}
+
+.r-btn {
+  flex: 1;
+  padding: 10px 4px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.18s;
+  font-family: 'Sora', sans-serif;
+}
+
+.r-btn:hover {
+  border-color: var(--teal);
+  background: var(--teal-pale);
+  transform: translateY(-2px);
+}
+
+.r-btn.selected {
+  border-color: var(--teal);
+  background: var(--teal);
+}
+
+.r-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1;
+}
+
+.r-btn.selected .r-num { color: var(--white); }
+
+.r-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+.r-btn.selected .r-label { color: rgba(255,255,255,0.8); }
+
+/* Multi-choice */
+.mc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mc-btn {
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--navy);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.18s;
+}
+
+.mc-btn:hover { border-color: var(--teal); background: var(--teal-pale); }
+
+.mc-btn.selected {
+  border-color: var(--teal);
+  background: var(--teal-pale);
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.mc-check {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 5px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+}
+
+.mc-btn.selected .mc-check {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: var(--white);
+  font-size: 11px;
+}
+
+/* Textarea */
+.survey-textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  color: var(--navy);
+  padding: 14px 16px;
+  resize: vertical;
+  min-height: 100px;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.6;
+}
+.survey-textarea:focus { border-color: var(--teal); background: var(--white); }
+.survey-textarea::placeholder { color: var(--gray); }
+
+/* ── NAVIGATION ── */
+.nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 28px;
+  gap: 12px;
+}
+
+.btn-back {
+  padding: 13px 22px;
+  background: transparent;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  color: var(--gray);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-back:hover { border-color: var(--navy); color: var(--navy); }
+
+.btn-next {
+  flex: 1;
+  padding: 15px 28px;
+  background: var(--teal);
+  border: none;
+  border-radius: 12px;
+  color: var(--white);
+  font-family: 'Sora', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-next:hover {
+  background: var(--teal-light);
+  box-shadow: 0 6px 24px rgba(13,148,136,0.3);
+  transform: translateY(-1px);
+}
+
+.btn-submit {
+  flex: 1;
+  padding: 15px 28px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  border: none;
+  border-radius: 12px;
+  color: var(--white);
+  font-family: 'Sora', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(13,148,136,0.25);
+}
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(13,148,136,0.4);
+}
+
+/* ── THANK YOU SCREEN ── */
+.thankyou-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.thankyou-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 56px 48px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 16px 60px rgba(0,0,0,0.1);
+  animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.85) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.check-circle {
+  width: 80px; height: 80px;
+  background: var(--teal-pale);
+  border: 3px solid var(--teal);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin: 0 auto 24px;
+}
+
+.thankyou-card h2 {
+  font-family: 'Lora', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.thankyou-card p { color: var(--gray); font-size: 15px; line-height: 1.6; margin-bottom: 32px; }
+
+.score-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.score-pill {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 10px;
+}
+.score-pill .sp-label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 4px; }
+.score-pill .sp-val { font-family: 'Lora', serif; font-size: 26px; font-weight: 700; color: var(--teal); }
+
+.btn-another {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 2px solid var(--teal);
+  border-radius: 12px;
+  color: var(--teal);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-another:hover { background: var(--teal-pale); }
+
+/* Mobile */
+@media (max-width: 600px) {
+  .progress-wrap { padding: 12px 16px; gap: 12px; }
+  .info-strips { grid-template-columns: 1fr; }
+  .role-grid { grid-template-columns: repeat(3, 1fr); }
+  .mc-grid { grid-template-columns: 1fr; }
+  .rating-row .r-label { display: none; }
+  .survey-box { margin: 0 16px; }
+  .dot-label { display: none; }
+  .thankyou-card { padding: 36px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div class="progress-wrap" id="progressWrap" style="display:none">
+  <div class="progress-logo">School<span>Survey</span></div>
+  <div class="progress-steps">
+    <div class="step-dot active" id="dot1">
+      <div class="dot-circle">1</div>
+      <span class="dot-label">Welcome</span>
+    </div>
+    <div class="step-dot" id="dot2">
+      <div class="dot-circle">2</div>
+      <span class="dot-label">Facilities</span>
+    </div>
+    <div class="step-dot" id="dot3">
+      <div class="dot-circle">3</div>
+      <span class="dot-label">Teaching</span>
+    </div>
+    <div class="step-dot" id="dot4">
+      <div class="dot-circle">4</div>
+      <span class="dot-label">Feedback</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SCREEN 1 — WELCOME ════════ -->
+<div class="screen active" id="s1">
+  <div class="survey-layout">
+    <div class="survey-box">
+      <div class="welcome-header">
+        <div class="tag-pill">📋 2024–2025 Academic Year</div>
+        <h1>Share Your<br><em>School Experience</em></h1>
+        <p>Help us make your school better. Your honest feedback is completely anonymous and takes about 3 minutes.</p>
+      </div>
+
+      <div class="role-label">I am a…</div>
+      <div class="role-grid">
+        <div class="role-card" onclick="selectRole('student', this)">
+          <span class="role-emoji">🎒</span>
+          <div class="role-name">Student</div>
+          <div class="role-sub">Currently enrolled</div>
+        </div>
+        <div class="role-card" onclick="selectRole('teacher', this)">
+          <span class="role-emoji">🎓</span>
+          <div class="role-name">Teacher</div>
+          <div class="role-sub">Faculty member</div>
+        </div>
+        <div class="role-card" onclick="selectRole('parent', this)">
+          <span class="role-emoji">👨‍👩‍👧</span>
+          <div class="role-name">Parent</div>
+          <div class="role-sub">Guardian / family</div>
+        </div>
+      </div>
+
+      <div class="info-strips">
+        <div class="info-strip">
+          <span class="info-icon">🔒</span>
+          <div class="info-text"><strong>Anonymous</strong>No personal data collected</div>
+        </div>
+        <div class="info-strip">
+          <span class="info-icon">⏱</span>
+          <div class="info-text"><strong>3 minutes</strong>Short &amp; focused survey</div>
+        </div>
+        <div class="info-strip">
+          <span class="info-icon">📊</span>
+          <div class="info-text"><strong>Impactful</strong>Results shape decisions</div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-next" style="flex:1" onclick="goTo(2)">
+          Start Survey <span>→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SCREEN 2 — FACILITIES ════════ -->
+<div class="screen" id="s2">
+  <div class="survey-layout">
+    <div class="survey-box">
+      <span class="q-section-tag tag-fac">🏫 School Facilities</span>
+      <div class="page-heading">How are our facilities?</div>
+      <div class="page-sub">Rate your experience with school buildings, spaces, and equipment.</div>
+
+      <div class="q-block">
+        <div class="q-num">Question 1 of 2</div>
+        <div class="q-text">How would you rate the overall condition of school facilities?</div>
+        <div class="rating-row">
+          <button class="r-btn" onclick="selectR('q_fac_cond',1,this)"><span class="r-num">1</span><span class="r-label">Poor</span></button>
+          <button class="r-btn" onclick="selectR('q_fac_cond',2,this)"><span class="r-num">2</span><span class="r-label">Fair</span></button>
+          <button class="r-btn" onclick="selectR('q_fac_cond',3,this)"><span class="r-num">3</span><span class="r-label">Okay</span></button>
+          <button class="r-btn" onclick="selectR('q_fac_cond',4,this)"><span class="r-num">4</span><span class="r-label">Good</span></button>
+          <button class="r-btn" onclick="selectR('q_fac_cond',5,this)"><span class="r-num">5</span><span class="r-label">Great</span></button>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-num">Question 2 of 2 — Select all that apply</div>
+        <div class="q-text">Which facilities need the most improvement?</div>
+        <div class="mc-grid">
+          <button class="mc-btn" onclick="toggleMC('q_fac_improve','Classrooms',this)"><span class="mc-check">✓</span>Classrooms</button>
+          <button class="mc-btn" onclick="toggleMC('q_fac_improve','Library',this)"><span class="mc-check">✓</span>Library</button>
+          <button class="mc-btn" onclick="toggleMC('q_fac_improve','Sports & Gym',this)"><span class="mc-check">✓</span>Sports &amp; Gym</button>
+          <button class="mc-btn" onclick="toggleMC('q_fac_improve','Bathrooms',this)"><span class="mc-check">✓</span>Bathrooms</button>
+          <button class="mc-btn" onclick="toggleMC('q_fac_improve','Tech Lab',this)"><span class="mc-check">✓</span>Tech Lab</button>
+          <button class="mc-btn" onclick="toggleMC('q_fac_improve','Cafeteria',this)"><span class="mc-check">✓</span>Cafeteria</button>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-back" onclick="goTo(1)">← Back</button>
+        <button class="btn-next" onclick="goTo(3)">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SCREEN 3 — TEACHING ════════ -->
+<div class="screen" id="s3">
+  <div class="survey-layout">
+    <div class="survey-box">
+      <span class="q-section-tag tag-teach">🎓 Teaching Quality</span>
+      <div class="page-heading">How is the teaching?</div>
+      <div class="page-sub">Rate your experience with lessons, teachers, and learning methods.</div>
+
+      <div class="q-block">
+        <div class="q-num">Question 1 of 3</div>
+        <div class="q-text">How would you rate the overall quality of teaching?</div>
+        <div class="rating-row">
+          <button class="r-btn" onclick="selectR('q_teach_quality',1,this)"><span class="r-num">1</span><span class="r-label">Poor</span></button>
+          <button class="r-btn" onclick="selectR('q_teach_quality',2,this)"><span class="r-num">2</span><span class="r-label">Fair</span></button>
+          <button class="r-btn" onclick="selectR('q_teach_quality',3,this)"><span class="r-num">3</span><span class="r-label">Okay</span></button>
+          <button class="r-btn" onclick="selectR('q_teach_quality',4,this)"><span class="r-num">4</span><span class="r-label">Good</span></button>
+          <button class="r-btn" onclick="selectR('q_teach_quality',5,this)"><span class="r-num">5</span><span class="r-label">Great</span></button>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-num">Question 2 of 3</div>
+        <div class="q-text">How engaging and interactive are lessons?</div>
+        <div class="rating-row">
+          <button class="r-btn" onclick="selectR('q_teach_engage',1,this)"><span class="r-num">1</span><span class="r-label">Boring</span></button>
+          <button class="r-btn" onclick="selectR('q_teach_engage',2,this)"><span class="r-num">2</span><span class="r-label">Dull</span></button>
+          <button class="r-btn" onclick="selectR('q_teach_engage',3,this)"><span class="r-num">3</span><span class="r-label">Okay</span></button>
+          <button class="r-btn" onclick="selectR('q_teach_engage',4,this)"><span class="r-num">4</span><span class="r-label">Fun</span></button>
+          <button class="r-btn" onclick="selectR('q_teach_engage',5,this)"><span class="r-num">5</span><span class="r-label">Exciting</span></button>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-num">Question 3 of 3 — Select all that apply</div>
+        <div class="q-text">What teaching methods do you find most effective?</div>
+        <div class="mc-grid">
+          <button class="mc-btn" onclick="toggleMC('q_teach_methods','Group Work',this)"><span class="mc-check">✓</span>Group Work</button>
+          <button class="mc-btn" onclick="toggleMC('q_teach_methods','Lectures',this)"><span class="mc-check">✓</span>Lectures</button>
+          <button class="mc-btn" onclick="toggleMC('q_teach_methods','Hands-on Projects',this)"><span class="mc-check">✓</span>Hands-on Projects</button>
+          <button class="mc-btn" onclick="toggleMC('q_teach_methods','Digital Tools',this)"><span class="mc-check">✓</span>Digital Tools</button>
+          <button class="mc-btn" onclick="toggleMC('q_teach_methods','Discussions',this)"><span class="mc-check">✓</span>Discussions</button>
+          <button class="mc-btn" onclick="toggleMC('q_teach_methods','Independent Study',this)"><span class="mc-check">✓</span>Independent Study</button>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-back" onclick="goTo(2)">← Back</button>
+        <button class="btn-next" onclick="goTo(4)">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SCREEN 4 — FEEDBACK ════════ -->
+<div class="screen" id="s4">
+  <div class="survey-layout">
+    <div class="survey-box">
+      <span class="q-section-tag" style="background:rgba(111,63,245,0.08);color:#7c3aed;">💬 Open Feedback</span>
+      <div class="page-heading">Final thoughts?</div>
+      <div class="page-sub">This is your space. Share anything you'd like the school leadership to know.</div>
+
+      <div class="q-block">
+        <div class="q-num">Optional</div>
+        <div class="q-text">Any additional comments, suggestions, or concerns?</div>
+        <textarea class="survey-textarea" id="openFeedback" placeholder="e.g. The science lab needs new equipment, teachers are very supportive, more extracurricular activities would help..."></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-num">Optional</div>
+        <div class="q-text">What's the single most important thing the school should prioritize?</div>
+        <div class="mc-grid" style="grid-template-columns:1fr">
+          <button class="mc-btn" onclick="selectSingle('q_priority','Better Facilities',this)"><span class="mc-check">✓</span>Better Facilities</button>
+          <button class="mc-btn" onclick="selectSingle('q_priority','Improved Teaching',this)"><span class="mc-check">✓</span>Improved Teaching</button>
+          <button class="mc-btn" onclick="selectSingle('q_priority','Mental Health Support',this)"><span class="mc-check">✓</span>Mental Health Support</button>
+          <button class="mc-btn" onclick="selectSingle('q_priority','More Activities',this)"><span class="mc-check">✓</span>More Extracurricular Activities</button>
+          <button class="mc-btn" onclick="selectSingle('q_priority','Safety & Wellbeing',this)"><span class="mc-check">✓</span>Safety &amp; Wellbeing</button>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-back" onclick="goTo(3)">← Back</button>
+        <button class="btn-submit" onclick="submitSurvey()">Submit Survey ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SCREEN 5 — THANK YOU ════════ -->
+<div class="screen" id="s5">
+  <div class="thankyou-wrap">
+    <div class="thankyou-card">
+      <div class="check-circle">✓</div>
+      <h2>Thank You!</h2>
+      <p>Your response has been recorded. Your feedback is invaluable and helps make our school better for everyone.</p>
+      <div class="score-row">
+        <div class="score-pill">
+          <div class="sp-label">Facilities</div>
+          <div class="sp-val" id="ty_fac">—</div>
+        </div>
+        <div class="score-pill">
+          <div class="sp-label">Teaching</div>
+          <div class="sp-val" id="ty_teach">—</div>
+        </div>
+        <div class="score-pill">
+          <div class="sp-label">Your Role</div>
+          <div class="sp-val" id="ty_role">—</div>
+        </div>
+      </div>
+      <button class="btn-another" onclick="resetSurvey()">Submit Another Response</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentStep = 1;
+let role = null;
+const answers = {};
+
+function goTo(step) {
+  if (step === 2 && !role) { alert('Please select your role first.'); return; }
+  if (step === 3 && !answers.q_fac_cond) { alert('Please rate the facilities condition.'); return; }
+  if (step === 4 && (!answers.q_teach_quality || !answers.q_teach_engage)) { alert('Please answer all rating questions.'); return; }
+
+  document.getElementById('s' + currentStep).classList.remove('active');
+  currentStep = step;
+  document.getElementById('s' + currentStep).classList.add('active');
+  window.scrollTo(0, 0);
+  updateProgress();
+}
+
+function updateProgress() {
+  const wrap = document.getElementById('progressWrap');
+  if (currentStep >= 1 && currentStep <= 4) {
+    wrap.style.display = 'flex';
+    [1, 2, 3, 4].forEach(i => {
+      const dot = document.getElementById('dot' + i);
+      dot.classList.remove('active', 'done');
+      if (i < currentStep) dot.classList.add('done');
+      else if (i === currentStep) dot.classList.add('active');
+    });
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function selectRole(r, el) {
+  role = r;
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectR(key, val, btn) {
+  answers[key] = val;
+  const row = btn.closest('.rating-row');
+  row.querySelectorAll('.r-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function toggleMC(key, val, btn) {
+  if (!answers[key]) answers[key] = [];
+  const idx = answers[key].indexOf(val);
+  if (idx === -1) { answers[key].push(val); btn.classList.add('selected'); }
+  else { answers[key].splice(idx, 1); btn.classList.remove('selected'); }
+}
+
+function selectSingle(key, val, btn) {
+  answers[key] = val;
+  btn.closest('.mc-grid').querySelectorAll('.mc-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function submitSurvey() {
+  const data = getStorage();
+  answers.feedback = document.getElementById('openFeedback').value.trim();
+  data.responses.push({ role, answers: { ...answers }, timestamp: new Date().toISOString() });
+  saveStorage(data);
+
+  // Thank you screen
+  document.getElementById('ty_fac').textContent = answers.q_fac_cond ? answers.q_fac_cond + '/5' : '—';
+  document.getElementById('ty_teach').textContent = answers.q_teach_quality ? answers.q_teach_quality + '/5' : '—';
+  const roleMap = { student: '🎒', teacher: '🎓', parent: '👨‍👩‍👧' };
+  document.getElementById('ty_role').textContent = roleMap[role] || '—';
+
+  document.getElementById('s4').classList.remove('active');
+  currentStep = 5;
+  document.getElementById('s5').classList.add('active');
+  updateProgress();
+  window.scrollTo(0, 0);
+}
+
+function resetSurvey() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  role = null;
+  document.querySelectorAll('.role-card, .r-btn, .mc-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('openFeedback').value = '';
+  document.getElementById('s5').classList.remove('active');
+  currentStep = 1;
+  document.getElementById('s1').classList.add('active');
+  updateProgress();
+}
+
+function getStorage() {
+  try { return JSON.parse(localStorage.getItem('schoolSurveyData')) || { responses: [] }; }
+  catch { return { responses: [] }; }
+}
+
+function saveStorage(d) { localStorage.setItem('schoolSurveyData', JSON.stringify(d)); }
+
+// Init
+updateProgress();
+
+// Seed demo data once
+(function seed() {
+  const d = getStorage();
+  if (d.responses.length) return;
+  const rows = [
+    { role:'student', q_fac_cond:3, q_fac_improve:['Classrooms','Bathrooms'], q_teach_quality:4, q_teach_engage:3, q_teach_methods:['Group Work','Digital Tools'], q_priority:'Better Facilities', feedback:'The library needs more books.' },
+    { role:'student', q_fac_cond:4, q_fac_improve:['Library'], q_teach_quality:5, q_teach_engage:4, q_teach_methods:['Hands-on Projects'], q_priority:'Improved Teaching', feedback:'Teachers are very supportive!' },
+    { role:'teacher', q_fac_cond:2, q_fac_improve:['Tech Lab','Classrooms'], q_teach_quality:4, q_teach_engage:4, q_teach_methods:['Discussions','Digital Tools'], q_priority:'Better Facilities', feedback:'' },
+    { role:'student', q_fac_cond:5, q_fac_improve:[], q_teach_quality:4, q_teach_engage:5, q_teach_methods:['Group Work','Discussions'], q_priority:'More Activities', feedback:'More sports would be great.' },
+    { role:'parent', q_fac_cond:3, q_fac_improve:['Bathrooms','Cafeteria'], q_teach_quality:3, q_teach_engage:3, q_teach_methods:['Lectures'], q_priority:'Safety & Wellbeing', feedback:'' },
+    { role:'student', q_fac_cond:4, q_fac_improve:['Sports & Gym'], q_teach_quality:5, q_teach_engage:5, q_teach_methods:['Hands-on Projects','Independent Study'], q_priority:'Improved Teaching', feedback:'Best school year so far!' },
+    { role:'teacher', q_fac_cond:3, q_fac_improve:['Tech Lab'], q_teach_quality:4, q_teach_engage:4, q_teach_methods:['Digital Tools','Group Work'], q_priority:'Mental Health Support', feedback:'Students need more mental health resources.' },
+  ];
+  rows.forEach(r => {
+    const { role, feedback, ...ans } = r;
+    d.responses.push({ role, answers: ans, feedback, timestamp: new Date().toISOString() });
+  });
+  saveStorage(d);
+})();
+</script>
+</body>
+</html>
